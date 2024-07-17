@@ -1,0 +1,11 @@
+services:
+  gotenberg-ui:
+    image: techblog/fastapi:latest
+    working_dir: /opt/gotenbergui
+    volumes:
+      - ./gotenbergui:/opt/gotenbergui
+    environment:
+      - GOTENBERG_API_ADDRESS=http://localhost:3000
+    command: python3 main.py
+    ports:
+      - 9000:8080
