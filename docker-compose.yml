@@ -9,3 +9,27 @@ services:
     command: python3 main.py
     ports:
       - 9000:8080
+  proxy:
+    image: traefik:v3.1.0
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:3000"
+    ports:
+      - 3000:3000
+      - 8080:8080
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  gotenberg:
+    image: thecodingmachine/gotenberg:8
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gotenberg.middlewares=cors"
+      - "traefik.http.routers.gotenberg.rule=Host(`localhost`)"
+      - "traefik.http.routers.gotenberg.entrypoints=web"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,OPTIONS,POST,PUT"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=http://localhost:9000"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.accesscontrolexposeheaders=*"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
